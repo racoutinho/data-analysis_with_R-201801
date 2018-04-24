@@ -1,6 +1,8 @@
 ---
 title: "Conteúdo programado para a aula"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ## Revisão aula 01

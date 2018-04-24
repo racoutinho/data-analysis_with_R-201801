@@ -11,7 +11,7 @@ load("aula-02/data/dados_exercicio.RData")
 ## Dica 2: Na primeira aula vimos uma função do RStudio que permite visualizar o conteúdo de uma variável, mas neste caso 
 ##         quero ver uma saída na Console.
 ### # ####
-
+str(acessos_alunos)
 
 
 ### 2 ###
@@ -19,8 +19,7 @@ load("aula-02/data/dados_exercicio.RData")
 
 ## Dica: Vimos um exemplo no mesmo material sobre estruturas de dados
 ### # ###
-
-
+length(acessos_alunos)
 
 ### 3 ###
 ## Utilizando o seu código de aluno da Uniritter como nome de um valor da lista, imprima uma linha informando quantos acessos
@@ -31,6 +30,8 @@ load("aula-02/data/dados_exercicio.RData")
 ## Dica 2: Vimos exemplos disto nos materiais dos tipos numéricos e das estruturas de dados.
 ### # ###
 
+acessos <- acessos_alunos$alu201830154
+print( paste(paste("O aluno alu201830154 realizou", acessos), "acessos"))
 
 
 ### 4 ###
@@ -44,11 +45,16 @@ acessos <- unlist(acessos_alunos)
 ## 3. Determine o tamanho do vetor da operação 2, imprimindo o resultado na Console
 ### # ###
 
+maiores <- which(acessos>7)
+maiores.valores <- acessos[maiores]
+print(length(maiores.valores))
+
 
 
 ### 5 ###
 ## Combine todas as etapas acima em uma única chamada, sem a criação dos vetores auxiliares
 ### # ###
+print(paste("A quatidade de colegas que fizeram mais acessos que eu foi: ", length(acessos[which(acessos>7)])))
 
 
 
@@ -58,7 +64,7 @@ acessos <- unlist(acessos_alunos)
 
 ## Dica: Lembre que falamos sobre como o R faz conversões implícitas entre o tipo lógico e tipos numéricos
 ### # ###
-
+print(paste("A quatidade de colegas que fizeram menos acessos que eu foi: ", sum(acessos < 7)))
 
 
 ### 7 ###
@@ -71,14 +77,16 @@ acessos <- unlist(acessos_alunos)
 ## Dica: Pode ser mais fácil se iniciar o vetor notas como uma cópia do vetor acessos, modificando os valores conforme as regras
 ## OBSERVAÇÃO :: Não avaliarei participação na forma do enunciado deste exercício. 
 ### # ###
-
+notas <- as.vector(unlist(acessos_alunos))
+notas[notas == 0] <- 0
+notas[notas > 0 & notas < 10] <- 1
+notas[notas >= 10] <- 2
 
 
 ### 8 ###
 ## Visualização da quantidade de alunos com cada nota de participação. Esta não é uma atividade, apenas uma ilustração de como
 ## criar uma tabela com esta contagem
 table(notas)
-
 
 
 ### 9 ###
@@ -90,7 +98,24 @@ acessos_alunos_e_guest$guest <- NA
 ## Repita as atividades 4, 5, 6, e 7 utilizando o acessos_com_guest no lugar da lista acessos_alunos.
 ## Tome o devido cuidado de sempre criar variáveis com nomes diferentes das já utilizadas! 
 
+### 4 ###
+acessos.guest <- unlist(acessos_alunos_e_guest)
+maiores.guest <- which(acessos.guest > 7)
+maiores.valores.guest <- acessos[maiores.guest]
+print(length(maiores.valores.guest))
+### 5 ###
+print(paste("A quatidade de colegas que fizeram mais acessos que eu foi: ", length(acessos[which(acessos.guest > 7)])))
+### 6 ###
+print(paste("A quatidade de colegas que fizeram menos acessos que eu foi: ", sum(acessos.guest < 7)))
+### 7 ###
+notas.guest <- as.vector(unlist(acessos_alunos_e_guest))
+notas.guest[notas.guest == 0] <- 0
+notas.guest[notas.guest > 0 & notas.guest < 10] <- 1
+notas.guest[notas.guest >= 10] <- 2
 
+print(notas.guest)
+
+table(notas.guest)
 
 ### 10 ###
 ## Responda as seguintes perguntas:
@@ -98,11 +123,25 @@ acessos_alunos_e_guest$guest <- NA
 
 # 1. Houve modificação no número de alunos com mais e com menos acessos que você?
 
+# Para mais acessos não. Mas para menos o resultado foi NA
+
 # 2. Como você conclui que o R trata comparações (operações relacionais) entre valores numéricos e NA?
+
+# O R não executa as operações relacionais nos NA's
+
+# print(notas.guest)
+# [1]  0  0  1  2  1  1  1  1  0  2  1  0  0  0  2  2  1  1  0  0  0  0  1  1  0  1  2  0  2  2  0  1 NA
 
 # 3. Qual o resultado do uso da função sum na presença de NA? O que você conclui sobre a operação de soma de todos os valores de
 #    um vetor na presença de NA?
 
+# A função soma de um vetor com NA retorna NA. Concluo que deve-se remover os NA's para a função de soma funcionar
+
 # 4. Execute o comando abaixo para ler a documentação da função sum e veja se há como modificar a chamada da função sum na presença
 #    de NAs. Teste os exemplos da página de help da função sum.
 help(sum)
+
+# Sim, basta usar o parametro na.rm = TRUE
+
+print(paste("A quatidade de colegas que fizeram menos acessos que eu foi: ", sum(acessos.guest < 7, na.rm = T)))
+
