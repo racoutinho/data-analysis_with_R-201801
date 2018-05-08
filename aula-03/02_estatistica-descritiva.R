@@ -143,12 +143,24 @@ subset_salarios %>%
 print("Atividade")
 ## Modificar o Dataset para criação de nova variável
 
+subset_salarios %>%
+  mutate(ANO_DE_INGRESSO = year(DATA_DIPLOMA_INGRESSO_SERVICOPUBLICO)) %>%
+  mutate(ANOS_DE_TRABALHO = 2018 - year(DATA_DIPLOMA_INGRESSO_SERVICOPUBLICO)) -> subset_salarios
+
 ## Determine o tempo médio de trabalho em anos, em nível nacional
+print(cat("A media de trabalho em anos no nivel nacional é : ", mean(subset_salarios$ANOS_DE_TRABALHO)))
 
 ## Determine o tempo médio de trabalho em anos, por UF
+subset_salarios %>%
+  group_by(UF_EXERCICIO) %>%
+  summarise(tempo_medio_trabalho = mean(ANOS_DE_TRABALHO))
+
 
 ## Determine a média salarial por ano de ingresso
 
+subset_salarios %>%
+  group_by(ANO_DE_INGRESSO) %>%
+  summarise(media_salarial_por_ano = mean(REMUNERACAO_REAIS))
 
 #' >> FIM DA ATIVIDADE
 #' 
@@ -195,6 +207,12 @@ subset_salarios %>%
 ## ------------------------------------------------------------------------
 print("Atividade")
 
+subset_salarios %>%
+  group_by(UF_EXERCICIO) %>%
+  summarise(media_remuneracao = mean(REMUNERACAO_REAIS),
+            mediana_remuneracao = median(REMUNERACAO_REAIS)) %>%
+  mutate(media_maior_mediana = ifelse(media_remuneracao > mediana_remuneracao, "maior", "menor")) -> teste
+
 ## Código aqui
 
 #' 
@@ -202,7 +220,7 @@ print("Atividade")
 #' 
 #' Qual sua justificativa para a quantidade de casos onde a mediana foi maior que a média? Dica: Observe o gráfico que mostra a média e a mediana. Há cauda longa? Em qual direção?
 #' 
-#' ``` SUA RESPOSTA AQUI ```
+#' ``` Considerando que a distribuição não é normal, a média tende a ser maior do que a mediana, devido ao fato da média ser mais sucetivel à valores outliers ```
 #' 
 #' >> FIM DA ATIVIDADE
 #' 
@@ -300,6 +318,19 @@ print("Atividade")
 
 ## Código aqui
 
+subset_salarios %>%
+  group_by(DESCRICAO_CARGO) %>%
+  summarise(coeficiente_variacao = ((sd(REMUNERACAO_REAIS) * 100) / mean(REMUNERACAO_REAIS)),
+            salario_minimo = min(REMUNERACAO_REAIS),
+            salario_medio = mean(REMUNERACAO_REAIS),
+            salario_maximo = max(REMUNERACAO_REAIS),
+            desvio_padrao = sd(REMUNERACAO_REAIS),
+            servidores = n()) %>%
+  filter(servidores > 100) %>%
+  arrange(coeficiente_variacao) %>%
+  head(10)
+  
+
 #' 
 #' __Atividade III__
 #' 
@@ -309,6 +340,18 @@ print("Atividade")
 print("Atividade")
 
 ## Código aqui
+
+subset_salarios %>%
+  group_by(DESCRICAO_CARGO) %>%
+  summarise(coeficiente_variacao = ((sd(REMUNERACAO_REAIS) * 100) / mean(REMUNERACAO_REAIS)),
+            salario_minimo = min(REMUNERACAO_REAIS),
+            salario_medio = mean(REMUNERACAO_REAIS),
+            salario_maximo = max(REMUNERACAO_REAIS),
+            desvio_padrao = sd(REMUNERACAO_REAIS),
+            servidores = n()) %>%
+  filter(servidores > 100) %>%
+  arrange(desc(coeficiente_variacao)) %>%
+  head(10)
 
 #' 
 #' ![](https://mathwithbaddrawings.files.wordpress.com/2016/07/20160712085402_00021.jpg)

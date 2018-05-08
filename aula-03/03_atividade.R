@@ -14,6 +14,14 @@ salarios <- read_csv("aula-03/data/201802_dados_salarios_servidores.csv.gz")
 ## 
 ### # ####
 
+# Dolar em 28/02/2018	3,2421
+
+cotacao <- 3.2421
+
+salarios %>%
+  mutate( REMUNERACAO_FINAL = REMUNERACAO_REAIS + (REMUNERACAO_DOLARES * cotacao)) %>%
+  filter(REMUNERACAO_FINAL > 900.0) -> salarios
+  
 
 ### 2 ####
 ## 
@@ -23,6 +31,20 @@ salarios <- read_csv("aula-03/data/201802_dados_salarios_servidores.csv.gz")
 ## 
 ## Dica: a função pull() do dplyr extrai uma variável em formato de vetor.
 salarios %>% count(UF_EXERCICIO) %>% pull(UF_EXERCICIO) -> ufs # EXEMPLO
+
+salarios %>%
+  filter(ORG_LOTACAO == "UNIVERS. TECNOLOGICA FEDERAL DO PARANA") %>%
+  count(DESCRICAO_CARGO) %>%
+  arrange(desc(n)) %>%
+  head(5)
+
+salarios %>%
+  filter(ORG_LOTACAO == "UNIVERS. TECNOLOGICA FEDERAL DO PARANA") %>%
+  count(DESCRICAO_CARGO) %>%
+  arrange(desc(n)) %>%
+  head(5) %>%
+  pull(DESCRICAO_CARGO) -> cargos_diferente_lotacao
+
 ## 
 ### # ####
 
@@ -48,4 +70,16 @@ salarios %>% filter(DESCRICAO_CARGO %in% c("MINISTRO DE PRIMEIRA CLASSE", "ANALI
 ## A função group_by permite múltiplos nomes de variáveis na mesma chamada.
 ## 
 ### # ####
+
+salarios %>% 
+  filter(DESCRICAO_CARGO %in% cargos_diferente_lotacao) %>%
+  mutate(MESMO_ORGAO = ifelse(ORG_LOTACAO == "UNIVERS. TECNOLOGICA FEDERAL DO PARANA", "MESMO_ORGAO", "ORGAO_DIFERENTE")) %>%
+  group_by(DESCRICAO_CARGO, MESMO_ORGAO) %>%
+  summarise(media_salarial = mean(REMUNERACAO_REAIS), 
+            desvio_padrao = sd(REMUNERACAO_REAIS),
+            mediana = median(REMUNERACAO_REAIS),
+            desvio_absoluto_da_mediana = (median(abs( REMUNERACAO_REAIS - median( REMUNERACAO_REAIS )))) / (median(REMUNERACAO_REAIS )),
+            menor_salario = min(REMUNERACAO_REAIS),
+            maior_salario = max(REMUNERACAO_REAIS),
+            servidores = n()) 
 
