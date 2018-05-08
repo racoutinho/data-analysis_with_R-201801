@@ -150,6 +150,12 @@ subset_salarios %>%
 ## Determine o tempo médio de trabalho em anos, em nível nacional
 print(cat("A media de trabalho em anos no nivel nacional é : ", mean(subset_salarios$ANOS_DE_TRABALHO)))
 
+## Alternativamente, com o summarize!
+subset_salarios %>%
+  mutate(ANOS_DE_TRABALHO = 2018 - year(DATA_DIPLOMA_INGRESSO_SERVICOPUBLICO))%>%
+  summarise(media_trabalho_nacional = mean(ANOS_DE_TRABALHO))
+
+
 ## Determine o tempo médio de trabalho em anos, por UF
 subset_salarios %>%
   group_by(UF_EXERCICIO) %>%
