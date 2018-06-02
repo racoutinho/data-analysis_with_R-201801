@@ -41,7 +41,20 @@ options(encoding = "UTF-8")
 #' Seguiremos com os dados de remuneração de servidores públicos federais no mês de Fevereiro de 2018, pós-processados para uso nesta aula.
 #' 
 ## ----"Dataset", message=FALSE, warning=FALSE-----------------------------
+
+# installing/loading the package:
+if(!require(installr)) {
+  install.packages("installr"); require(installr)} #load / install+load installr
+
+# using the package:
+updateR() # this will start the updating process of your R installation.  It will check for newer versions, and if one is available, will guide you through the decisions you'd need to make.
+
+
+install.packages("tidyverse")
+install.packages("lubridate")
+
 library(tidyverse)
+library(lubridate)
 
 subset_salarios <- read_csv("aula-04/data/201802_dados_salarios_servidores.csv.gz") %>%
   filter(REMUNERACAO_REAIS > 900, !is.na(UF_EXERCICIO)) %>%
@@ -168,6 +181,13 @@ print("Atividade")
 
 ## Código aqui
 
+(desvio.absoluto <- median( abs( subset_salarios$REMUNERACAO_REAIS - median( subset_salarios$REMUNERACAO_REAIS ))))
+
+(MEDIANA <- median( subset_salarios$REMUNERACAO_REAIS ))
+
+RES_DAM = desvio.absoluto / MEDIANA
+
+(IQR(subset_salarios$REMUNERACAO_REAIS)/ RES_DAM)
 #' 
 #' __Atividade II__
 #' 
@@ -178,7 +198,15 @@ print("Atividade")
 print("Atividade")
 
 ## Código aqui
+desvio.absoluto.mediana <- function(x) {
+  (median( abs( x - median( x ))) / median( x ))
+}
 
+(DP = sd((2018 - year(subset_salarios$DATA_DIPLOMA_INGRESSO_SERVICOPUBLICO))))
+
+(RET_DAM = (desvio.absoluto.mediana(2018 - year(subset_salarios$DATA_DIPLOMA_INGRESSO_SERVICOPUBLICO))))
+
+(IQR((2018 - year(subset_salarios$DATA_DIPLOMA_INGRESSO_SERVICOPUBLICO))))
 #' 
 #' >> FIM ATIVIDADE
 #' 
@@ -238,6 +266,25 @@ cor(x = subset_salarios$REMUNERACAO_REAIS, y = 2018 - year( subset_salarios$DATA
 print("Atividade")
 
 ## Código aqui
+
+correlacao.valor = cor(x = year (subset_salarios$DATA_INGRESSO_ORGAO), 
+                       y = year( subset_salarios$DATA_DIPLOMA_INGRESSO_SERVICOPUBLICO ))
+
+correlacao = (ifelse(correlacao.valor>0,'POSITIVA','NEGATIVA'))
+
+if(correlacao.valor>=0.9){
+  grau= ('MUITO FORTE')
+} else if (correlacao.valor>=0.7){
+  grau= ('FORTE')
+}else if (correlacao.valor >=0.5){
+  grau = ('MODERADA')
+}else {
+  grau = ('FRACA')
+};
+
+print(paste("correlacao", correlacao.valor,correlacao,grau));
+
+
 
 #' 
 #' >> FIM ATIVIDADE
