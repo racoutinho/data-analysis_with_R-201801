@@ -270,7 +270,7 @@ library(ggplot2)
 library(tidyverse)
 
 set.seed(15430)
-df_geom_probs <- data_frame(x = 0:20, y=dgeom(0:20, prob = 0.5) * 100)
+df_geom_probs <- data_frame(x = 0:20, y=dgeom(0:20, prob = 0.5) * 500)
 
 ggplot(df_geom_probs, aes(x=x, y=y)) +
   geom_col() +
@@ -334,6 +334,21 @@ ggplot(br_height, aes(x=year, y=height, ymin=lo_95, ymax=hi_95)) +
 #' 
 #' 1. Utilizando o data frame br_height e as operações do pacote __dplyr__ (__tidyverse__), selecione os dados de altura (height), menor altura dentro do IC (lo_95) e maior altura dentro do IC (hi_95) de acordo com o seu sexo e ano de nascença. Crie uma variável que é a divisão de sua altura pela média, e outra que informa se a sua altura está dentro ou fora do intervalo de confiança. Em aula, informe o professor sobre os 2 resultados.
 #' 
+#' 
+library(tidyverse)
+
+altura <- 183
+
+br_height%>%
+  filter( Sex == "Men", year == 1983)%>%
+  select(height, lo_95, hi_95 ) -> subset_br
+
+razao <- altura / mean(subset_br$height)
+
+IC = ifelse(altura >= subset_br$lo_95 && altura <= subset_br$hi_95 , 'SIM', 'NAO')
+
+print(paste('Razao Minha Altura e Media: ', razao,'Está no intervalode confianca:', IC))
+
 #' 2. Baixe o relatório do [LEVANTAMENTO DO PERFIL ANTROPOMÉTRICO DA POPULAÇÃO BRASILEIRA USUÁRIA DO TRANSPORTE AÉREO NACIONAL – PROJETO CONHECER](http://www2.anac.gov.br/arquivos/pdf/Relatorio_Final_Projeto_Conhecer.pdf) e obtenha a média e o desvio padrão da amostra deste relatório (página 23).
 #' 
 #' 3. Considerando que o estudo da ANAC foi realizado entre os anos de 2004 e 2008, e que a média de idade é de 40 anos, com Desvio Padrão de idade de 12 anos, e assumindo como premissa que a altura da pessoa se mantem entre os 20 e os 60 anos, temos um intervalo de aproximadamente 1.65 desvios padrão da média. Utilizando a função `pnorm`, calcule os percentuais de 20 anos e 60 anos com a média (mean), e desvio padrão (sd) obtidos neste relatório. Utilize o parâmtro `lower.tail = FALSE` para 60 anos e `lower.tail = TRUE` para 20 anos. Quais são os valores obtidos? Conclua quanto representa, em percentual, os 1.65 desvios padrão.
