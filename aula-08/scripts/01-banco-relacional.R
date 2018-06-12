@@ -2,10 +2,11 @@
 # install.packages("RSQLite")
 
 # Banco de Dados Relacional e Colunar de propósito analítico, embutido
-# install.packages("MonetDBLite")
+
+install.packages("MonetDBLite")
 
 # Biblioteca para objetos JSON
-# install.packages("jsonlite")
+install.packages("jsonlite")
 
 library(tidyverse)
 
@@ -20,10 +21,16 @@ ted_main <- ted_talks %>%
   select(url, name, main_speaker, speaker_occupation, num_speaker, title, event, duration, film_date, published_date, comments, languages, views, description)
   
 # Cria data.frame (tibble) ted_ratings com cada categoria atribuida a uma ted_talk, a quantidade de vezes que a categoria foi votada e a proporção de votos de cada categoria
-ted_ratings <- ted_talks %>%
+ted_ratings2 <- ted_talks %>%
   select( url, ratings ) %>%
   mutate( ratings = map( ratings, ~ jsonlite::fromJSON( str_replace_all( .x, "'", '"' )))) %>%
-  unnest( ratings ) %>%
+  unnest( ratings ) 
+
+ted_ratings2 %>%
+  select(id, name) %>%
+  distinct()
+
+ted_ratings <- ted_ratings2 %>%
   select( -id ) %>%
   rename( category = name ) %>%
   filter( count > 0 ) %>%
@@ -40,10 +47,18 @@ dbdir <- "aula-08/data/monetdb/ted"
 my_db <- MonetDBLite::src_monetdblite(dbdir)
 
 # Cria tabela temporária com ted_ratings
-tb_ted_ratings <- copy_to(my_db, df = ted_ratings, name = "ted_ratings_tmp", overwrite = TRUE, temporary = TRUE)
+tb_ted_ratings <- copy_to(my_db, 
+                          df = ted_ratings, 
+                          name = "ted_ratings_tmp", 
+                          overwrite = TRUE, 
+                          temporary = TRUE)
 
 # Cria tabela temporária com ted_main
-tb_ted_main <- copy_to(my_db, df = ted_main, name = "ted_main_tmp", overwrite = TRUE, temporary = TRUE)
+tb_ted_main <- copy_to(my_db, 
+                       df = ted_main, 
+                       name = "ted_main_tmp", 
+                       overwrite = TRUE, 
+                       temporary = TRUE)
 
 # Para cada talk, determinar a categoria de rating mais comum (por ratio) e o total geral de tags que a talk recebeu
 tb_ted_ratings %>%
