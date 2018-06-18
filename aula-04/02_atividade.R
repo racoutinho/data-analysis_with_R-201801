@@ -110,6 +110,7 @@ print(paste('Dos 10 cargos correlacao mais forte :',
 print(paste('Dos 10 cargos correlacao mais fracas : ',
       paste('Orgao Lotacao:',moda_orgsup_lotacaof,'   Orgao Exercicio:',moda_orgsup_exerciciof)))
 
+moda_orgsup_exercicio
 
 ##Comentario
 ## a diferenca das modas  entre orgao de lotacao e de exercio e o exato oposto entre os cargos de 

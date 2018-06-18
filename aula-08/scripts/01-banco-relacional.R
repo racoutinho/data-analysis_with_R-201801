@@ -51,7 +51,7 @@ tb_ted_ratings <- copy_to(my_db,
                           df = ted_ratings, 
                           name = "ted_ratings_tmp", 
                           overwrite = TRUE, 
-                          temporary = TRUE)
+                          temporary = T)
 
 # Cria tabela temporária com ted_main
 tb_ted_main <- copy_to(my_db, 
@@ -59,6 +59,8 @@ tb_ted_main <- copy_to(my_db,
                        name = "ted_main_tmp", 
                        overwrite = TRUE, 
                        temporary = TRUE)
+
+summary(tb_ted_ratings)
 
 # Para cada talk, determinar a categoria de rating mais comum (por ratio) e o total geral de tags que a talk recebeu
 tb_ted_ratings %>%
@@ -68,6 +70,7 @@ tb_ted_ratings %>%
   inner_join( tb_ted_ratings, by=c("url", "max_ratio" = "rating_ratio" )) %>%
   select( url, category, ratings ) -> ted_defining_category
 
+ted_defining_category
 # Consulta em SQL
 show_query( ted_defining_category )
 
@@ -76,9 +79,11 @@ tb_ted_main %>%
 
 show_query( tb_ted_main )
 
+tb_ted_main
+
 # Grava ted_main com novas colunas
-tb_ted_main    <- copy_to( my_db, tb_ted_main, name = "ted_main", overwrite = TRUE, temporary = FALSE )
-tb_ted_ratings <- copy_to( my_db, tb_ted_ratings, name = "ted_ratings", overwrite = TRUE, temporary = FALSE )
+tb_ted_main    <- copy_to( my_db, tb_ted_main, name = "ted_main-aula", overwrite = TRUE, temporary = FALSE )
+tb_ted_ratings <- copy_to( my_db, tb_ted_ratings, name = "ted_ratings-aula", overwrite = TRUE, temporary = FALSE )
 
 # Encerra conexão
 MonetDBLite::monetdblite_shutdown()

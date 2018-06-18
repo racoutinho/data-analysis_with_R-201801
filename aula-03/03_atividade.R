@@ -82,4 +82,4 @@ salarios %>%
             menor_salario = min(REMUNERACAO_REAIS),
             maior_salario = max(REMUNERACAO_REAIS),
             servidores = n()) 
-
+#A variacao é menor para aqueles cargos em que a pessoa esta lotada no mesmo orgão.

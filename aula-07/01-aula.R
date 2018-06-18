@@ -296,6 +296,10 @@ round( prop.table( table(seq_head_tails$lengths[!seq_head_tails$values]) ), 2)
 #' 
 #' - Seu sistema de monitoramento identificou que um usuário tentou 5 CAPTCHAS diferentes antes de conseguir reclamar do tempo de atendimento na última queda de conectividade. 
 #'     + Qual a probabilidade de um usuário acertar o CAPTCHA após 5 tentativas fracassadas? Qual o mínimo de tentativas para que a probabilidade seja maior que 50%?
+
+df_geom_probs <- data_frame(x = 1:10, y=pgeom(1:10, prob = 0.5) * 100)
+
+
 #'     
 #'     + Você observou que, das últimas 500 _tentativas_ de publicação de reclamações, 340 acertaram a validação de CAPTCHA. Qual a probabilidade de uma quantidade entre 320 e 350 tentativas passarem pela validação de CAPTCHA a cada 500 tentativas? Dada a probabilidade de 70% de sucesso, qual o número esperado de publicações a cada 500 CAPTCHAS? DICA: ESTAMOS TRATANDO DA DISTRIBUIÇÃO BINOMIAL.
 #' 
@@ -351,12 +355,35 @@ print(paste('Razao Minha Altura e Media: ', razao,'Está no intervalode confianc
 
 #' 2. Baixe o relatório do [LEVANTAMENTO DO PERFIL ANTROPOMÉTRICO DA POPULAÇÃO BRASILEIRA USUÁRIA DO TRANSPORTE AÉREO NACIONAL – PROJETO CONHECER](http://www2.anac.gov.br/arquivos/pdf/Relatorio_Final_Projeto_Conhecer.pdf) e obtenha a média e o desvio padrão da amostra deste relatório (página 23).
 #' 
+# 2
+media_anac_altura <- 173.1
+sd_anac_altura <- 7.3
+
+media_anac_idade <- 40
+sd_anac_idade <- 12
+
 #' 3. Considerando que o estudo da ANAC foi realizado entre os anos de 2004 e 2008, e que a média de idade é de 40 anos, com Desvio Padrão de idade de 12 anos, e assumindo como premissa que a altura da pessoa se mantem entre os 20 e os 60 anos, temos um intervalo de aproximadamente 1.65 desvios padrão da média. Utilizando a função `pnorm`, calcule os percentuais de 20 anos e 60 anos com a média (mean), e desvio padrão (sd) obtidos neste relatório. Utilize o parâmtro `lower.tail = FALSE` para 60 anos e `lower.tail = TRUE` para 20 anos. Quais são os valores obtidos? Conclua quanto representa, em percentual, os 1.65 desvios padrão.
 #' 
+norm( mean = media_anac_idade, sd = sd_anac_idade, q = 60, lower.tail = FALSE )
+pnorm( mean = media_anac_idade, sd = sd_anac_idade, q = 20, lower.tail = TRUE  )
+
 #' 4. Assumindo que a altura aos 18 anos equivale à altura dos 20 aos 60 anos, selecione do data frame br_height a altura média de todas as pessoas que tinham entre 20 e 60 anos entre os anos de 2004 e 2008. Calcule a média de altura de homens e de mulheres neste período. Realize todo este exercício utilizando o __dplyr__. Responda: Com base nas alturas médias obtidas, você acha que mulheres participaram deste estudo?
 #' 
+
+menor_ano <- 2004 - 60
+maior_ano <- 2008 - 20
+
+br_height %>%
+  filter( between( year, menor_ano, maior_ano )) %>%
+  group_by( Sex ) %>%
+  summarise( mean_height = mean( height )) %>%
+  ungroup()
+
 #' 5. A altura média dos homens calculada no exercício 4 está quantos desvios-padrão acima/abaixo da média anotada no exercício 2?
 #' 
+#' 
+(171 - media_anac_altura ) / sd_anac_idade
+
 #' 6. Baixe os seguintes arquivos:
 #' - [Antropometria e estado nutricional de crianças, adolescentes e adultos no Brasil](https://ww2.ibge.gov.br/home/estatistica/populacao/condicaodevida/pof/2008_2009_encaa/defaulttabzip_brasil.shtm), baixe o arquivo Tabela Completa Brasil.
 #' - [link de tabelas por UF](https://ww2.ibge.gov.br/home/estatistica/populacao/condicaodevida/pof/2008_2009_encaa/defaulttabzip_UF.shtm), baixe a tabela dos estados do Rio Grande do Sul e do Sergipe.
