@@ -33,13 +33,13 @@ salarios %>%
 salarios %>% count(UF_EXERCICIO) %>% pull(UF_EXERCICIO) -> ufs # EXEMPLO
 
 salarios %>%
-  filter(ORG_LOTACAO == "UNIVERS. TECNOLOGICA FEDERAL DO PARANA") %>%
+  filter(ORG_LOTACAO != ORGSUP_EXERCICIO) %>%
   count(DESCRICAO_CARGO) %>%
   arrange(desc(n)) %>%
   head(5)
 
 salarios %>%
-  filter(ORG_LOTACAO == "UNIVERS. TECNOLOGICA FEDERAL DO PARANA") %>%
+  filter(ORG_LOTACAO != ORGSUP_EXERCICIO) %>%
   count(DESCRICAO_CARGO) %>%
   arrange(desc(n)) %>%
   head(5) %>%
@@ -73,7 +73,7 @@ salarios %>% filter(DESCRICAO_CARGO %in% c("MINISTRO DE PRIMEIRA CLASSE", "ANALI
 
 salarios %>% 
   filter(DESCRICAO_CARGO %in% cargos_diferente_lotacao) %>%
-  mutate(MESMO_ORGAO = ifelse(ORG_LOTACAO == "UNIVERS. TECNOLOGICA FEDERAL DO PARANA", "MESMO_ORGAO", "ORGAO_DIFERENTE")) %>%
+  mutate(MESMO_ORGAO = ifelse(ORG_LOTACAO == ORGSUP_EXERCICIO, "MESMO_ORGAO", "ORGAO_DIFERENTE")) %>%
   group_by(DESCRICAO_CARGO, MESMO_ORGAO) %>%
   summarise(media_salarial = mean(REMUNERACAO_REAIS), 
             desvio_padrao = sd(REMUNERACAO_REAIS),
