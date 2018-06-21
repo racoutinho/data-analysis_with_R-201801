@@ -12,33 +12,119 @@ insta_products <- read_csv( "project/order_products_instacart.csv" ) # Produtos 
 
 #1 # Quantos dos produtos do cadastro nunca foram comprados?
 
+# Obtenho a lista distinta de product_ids comprados
+insta_products %>%
+  distinct(product_id) -> comprados
 
+#filtro da lista de produtos aqueles que nunca foram comprados
+products %>% 
+  filter(!product_id %in% as_vector(comprados)) -> naocomprados
+
+naocomprados %>%
+  distinct() %>%
+  count()
+
+
+select(product_name, product_id)
 #2 # Crie um dataframe com os dados combinados de produtos, corredores e departamentos. 
 
+products %>%
+  left_join(aisles, by="aisle_id") %>%
+  left_join(departments, by="department_id") -> combined
 
 #3 # Quais as 10 combinações corredor + departamento que possuem mais produtos cadastrados? Use o dataframe da atividade #2.
+
+combined %>%
+  group_by(aisle, department) %>%
+  count() %>% 
+  arrange(desc(n)) %>%
+  head(10) -> top_dez_comprados
 
 
 #4 # Qual o percentual de pedidos que possuem algum produto dos pares 'corredor + departamento' da atividade anterior?
 
+combined %>%
+  group_by(aisle, department) %>%
+  count() %>% 
+  arrange(desc(n)) %>%
+  mutate(top_ten=ifelse(n >= 874, "yes", "no")) -> t
+
+combined%>%
+  group_by(aisle_id,department_id)%>%
+  count()%>%
+  arrange(desc(n))%>%
+  head(10) -> top_ten
+
+products%>%  
+  right_join(top_ten, by = ("aisle_id")) %>%
+  inner_join(insta_products, by = ("product_id"))%>%
+  distinct(order_id)%>%
+  count() -> order_count
+
+total_orders <- nrow(insta_orders)
+percentage <- ((order_count/total_orders) * 100)
+print(percentage)
 
 #5 # Crie um novo dataframe de produtos em pedidos retirando aqueles produtos que não estão categorizados (usar resultado das atividades 3 e 4)
 
+insta_products %>%
+  left_join(products, by="product_id") %>%
+  left_join(aisles, by="aisle_id") %>%
+  left_join(departments, by="department_id") %>%
+  filter(department != "missing" | aisle != "missing") -> orders_filtered_joined
+
 
 #6 # Crie um dataframe que combine todos os dataframes através das suas chaves de ligação. Para produtos de pedidos, use o dataframe da atividade 4
+
+insta_orders %>%
+  left_join(orders_filtered_joined, by="order_id") -> order_complete
+
    # Transforme as variáveis user_id, department e aisle em factor
+order_complete$user_id = as.factor(order_complete$user_id)
+   
    # Transforme a variável order_hour_of_day em um factor ordenado (ordered)
-
-   # Este dataframe deverá ser utilizado em todas as atividades seguintes
-
+order_complete$order_hour_of_day = factor(order_complete$order_hour_of_day, ordered=T)
+   
+# Este dataframe deverá ser utilizado em todas as atividades seguintes
+summary(order_complete)
 
 #7 # Identifique os 5 horários com maior quantidade de usuários que fizeram pedidos
+library(ggplot2)
 
+order_complete  %>%
+  select(user_id, order_id, order_hour_of_day) %>%
+  group_by(order_hour_of_day) %>%
+  distinct(user_id, order_id, order_hour_of_day) -> t
+
+ggplot(t, aes(x=order_hour_of_day)) +
+  geom_histogram(stat = "count" )
+
+t %>%
+  group_by(order_hour_of_day) %>%
+  count(sum = n()) %>%
+  arrange(desc(sum)) %>%
+  head(5) -> top_hours_orders
 
 #8 # Quais os 15 produtos mais vendidos nestes 5 horários? Identifique os produtos e a quantidade total nestes horários (total geral, não por hora)
 
+order_complete %>%
+  filter(order_hour_of_day %in% as.factor(top_hours_orders$order_hour_of_day)) %>%
+  group_by(product_id, product_name) %>%
+  count(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(15)
 
 #9 # Calcule a média de vendas por hora destes 15 produtos ao longo do dia,
+
+order_complete %>%
+  filter(order_hour_of_day %in% as.factor(top_hours_orders$order_hour_of_day))  %>%
+  group_by(order_hour_of_day, product_name) %>%
+  summarise(Mean = mean(product_id)) -> t2
+
+ggplot(t2, aes(x=order_hour_of_day, y=Mean)) +
+  geom_line(aes(color=product_name))
+
+
    # e faça um gráfico de linhas mostrando a venda média por hora destes produtos. 
    # Utilize o nome do produto para legenda da cor da linha.
    # Você consegue identificar algum produto com padrão de venda diferente dos demais? 

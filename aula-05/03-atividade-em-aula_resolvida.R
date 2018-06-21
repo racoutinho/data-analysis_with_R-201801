@@ -154,6 +154,8 @@ cor(ted_talks_mais_curtas$views, ted_talks_mais_curtas$duration)
 cor(ted_talks_mais_curtas$views, ted_talks_mais_curtas$comments)
 cor(ted_talks_mais_curtas$languages, ted_talks_mais_curtas$comments)
 
+pairs(ted_talks_mais_curtas)
+
 
 # Utilizando o data frame original, crie um dataframe com a mediana da duração dos vídeos por ano de filmagem. Calcule a correlação entre o ano e a mediana da duração
 # e interprete o resultado
@@ -171,3 +173,4 @@ ted_talks %>%
   geom_histogram( bins = 1000 ) +
   facet_wrap( ~ ano_publicacao, ncol = 3 ) +
   theme_bw()
+
