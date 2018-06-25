@@ -112,21 +112,23 @@ order_complete %>%
   group_by(product_id, product_name) %>%
   count(n = n()) %>%
   arrange(desc(n)) %>%
-  head(15)
+  head(15) -> list_of_15_prod
 
 #9 # Calcule a média de vendas por hora destes 15 produtos ao longo do dia,
 
 order_complete %>%
-  filter(order_hour_of_day %in% as.factor(top_hours_orders$order_hour_of_day))  %>%
+#  filter(order_hour_of_day %in% as.factor(top_hours_orders$order_hour_of_day))  %>%
+  filter(product_id %in% as.factor(list_of_15_prod$product_id))  %>%
   group_by(order_hour_of_day, product_name) %>%
-  summarise(Mean = mean(product_id)) -> t2
+  summarise(Mean = mean(order_id)) -> t2
 
 ggplot(t2, aes(x=order_hour_of_day, y=Mean)) +
-  geom_line(aes(color=product_name))
+  geom_line(aes(group=product_name, color=product_name))
 
 
    # e faça um gráfico de linhas mostrando a venda média por hora destes produtos. 
    # Utilize o nome do produto para legenda da cor da linha.
+
    # Você consegue identificar algum produto com padrão de venda diferente dos demais? 
 
 
@@ -134,43 +136,142 @@ ggplot(t2, aes(x=order_hour_of_day, y=Mean)) +
     # Média, Desvio Padrão, Mediana, Mínimo e Máximo
     # Considerando os valores calculados, você acredita que a distribuição por hora é gaussiana? 
 
+order_complete %>%
+  group_by(order_hour_of_day) %>%
+  summarise(mean = mean(order_id), 
+            sd = sd(order_id), 
+            max = max(order_id), 
+            min = min(order_id), 
+            order_count = n()) %>%
+  ungroup() -> summary_order
 
-#11 # Faça um gráfico da média de quantidade de produtos por hora, com 1 desvio padrão para cima e para baixo em forma de gráfico de banda
+ggplot(summary_order, aes(x=order_hour_of_day, y=order_count)) +
+  geom_bar(stat="identity")
+
+{REVIEW} #11 # Faça um gráfico da média de quantidade de produtos por hora, com 1 desvio padrão para cima e para baixo em forma de gráfico de banda
+
+order_complete %>%
+  group_by(order_hour_of_day) %>%
+  count(product_id) %>%
+  mutate(low = mean(n) - 2 * sd(n), 
+         hi = mean(n) + 2 * sd(n), 
+         meanProdQuant = mean(n),
+         sumProdQuant = sum(n),
+         sdProdQuant = sd(n), 
+         product_count = n()) -> summary_product
+
+ 
+
+
+ggplot(summary_product, aes(x=order_hour_of_day, y=meanProdQuant, ymin=low, ymax=hi, group=1)) +
+  geom_line() + 
+  geom_ribbon(fill = "lightgray", alpha = 0.5) + 
+  geom_jitter(alpha = .2, height = 0, width = 0.3) +
+  theme_bw()
 
 
 #12 # Visualize um boxplot da quantidade de pedidos por hora nos 7 dias da semana. O resultado deve ter order_dow como eixo x.
 
+order_complete %>%
+  group_by(order_dow) %>%
+  count(order_id) -> t
+
+ggplot(t, aes(x=order_dow, group=order_dow)) +
+  geom_boxplot(aes(y=n)) +
+  scale_x_continuous( breaks = 0:6 ) +
+  scale_y_continuous(labels = scales::format_format(big.mark = ".", decimal.mark=",", scientific = FALSE)) +
+  labs( x = "Dia da Semana"
+        , y = "Quantidade de Pedidos") +
+  theme_bw()
 
 #13 # Identifique, por usuário, o tempo médio entre pedidos
 
+order_complete %>%
+  group_by(user_id) %>%
+  summarise(meanTime = mean(days_since_prior_order)) -> t
 
 #14 # Faça um gráfico de barras com a quantidade de usuários em cada tempo médio calculado
 
+ggplot(t, aes(x=meanTime)) +
+  geom_bar( fill="blue", color = "blue", alpha=0.6 ) +
+  labs( x = "Tempo Medio Ultimo Pedido"
+        , y = "Qtde usuarios" )
 
 #15 # Faça um gráfico de barras com a quantidade de usuários em cada número de dias desde o pedido anterior. Há alguma similaridade entre os gráficos das atividades 14 e 15? 
+
+ggplot(order_complete, aes(x=days_since_prior_order)) +
+  geom_bar( fill="blue", color = "blue", alpha=0.6 ) +
+  labs( x = "Tempo Medio Ultimo Pedido"
+        , y = "Qtde usuarios" )
 
 
 #16 # Repita o gráfico da atividade 14 mantendo somente os usuários com no mínimo 5 pedidos. O padrão se mantém?
 
+order_complete%>%
+  group_by(user_id)%>%
+  count(order_id)%>%
+  filter(n>4)-> users.5.more.orders
+
+order_complete%>%
+  inner_join(users.5.more.orders, by = "user_id")%>%
+  group_by(user_id)%>%
+  summarise(meanTime = mean(days_since_prior_order))-> new_vector_mean_time
+
+ggplot(new_vector_mean_time,  aes( x = meanTime)) +
+  geom_bar( fill="blue", color = "blue", alpha=0.6 ) +
+  labs( x = "Tempo Medio Ultimo Pedido"
+        , y = "Qtde usuarios" )
 
 #17 # O vetor abaixo lista todos os IDs de bananas maduras em seu estado natural.
     # Utilizando este vetor, identifique se existem pedidos com mais de um tipo de banana no mesmo pedido.
+bananas_ids <- c(24852, 13176, 39276, 37067, 29259)
 
+order_complete %>%
+  filter(product_id %in% as_vector(bananas_ids)) %>%
+  group_by(order_id) %>%
+  distinct(product_id) -> orderids.bananasids
+
+orderids.bananasids %>%
+  count() %>%
+  filter(n>1) %>%
+  ungroup() %>%
+  count() -> count.orders.with.more.than.one
+
+print(paste(paste("Existem ", count.orders.with.more.than.one), " pedidos que compraram mais de um tipo de banana"))
 
 #18 # Se existirem, pedidos resultantes da atividade 17, conte quantas vezes cada tipo de banana aparece nestes pedidos com mais de um tipo de banana.
     # Após exibir os tipos de banana, crie um novo vetor de id de bananas contendo somente os 3 produtos de maior contagem de ocorrências
 
+orderids.bananasids %>%
+  group_by(product_id) %>%
+  count() %>%
+  arrange(desc(n)) %>%
+  head(3)  -> top3.bananas.ids
+  
+top3.bananas.ids = as_vector(top3.bananas.ids$product_id)
 
-#19 # Com base no vetor criado na atividade 18, conte quantos pedidos de, em média, são feitos por hora em cada dia da semana. 
 
+#19 # Com base no vetor criado na atividade 18, conte quantos pedidos de bananas, em média, são feitos por hora em cada dia da semana. 
+
+order_complete %>%
+  filter(product_id %in% top3.bananas.ids) %>%
+  group_by(order_dow, order_hour_of_day) %>%
+  count(product_id) %>%
+  summarise(meanCount = mean(n)) -> dow.hour.mean.count
 
 #20 # Faça um gráfico dos pedidos de banana da atividade 19. O gráfico deve ter o dia da semana no eixo X, a hora do dia no eixo Y, 
     # e pontos na intersecção dos eixos, onde o tamanho do ponto é determinado pela quantidade média de pedidos de banana 
     # nesta combinação de dia da semana com hora
 
+ggplot(dow.hour.mean.count, aes(x=order_dow, y=order_hour_of_day, size=meanCount)) +
+  geom_point()
 
 #21 # Faça um histograma da quantidade média calculada na atividade 19, facetado por dia da semana
 
+ggplot(dow.hour.mean.count, aes(x=order_hour_of_day, y=meanCount)) +
+  geom_histogram(stat="identity") +
+  facet_wrap(~order_dow, ncol=3)
 
 #22 # Teste se há diferença nas vendas por hora entre os dias 3 e 4 usando o teste de wilcoxon e utilizando a simulação da aula de testes
+
 
