@@ -275,3 +275,13 @@ ggplot(dow.hour.mean.count, aes(x=order_hour_of_day, y=meanCount)) +
 #22 # Teste se há diferença nas vendas por hora entre os dias 3 e 4 usando o teste de wilcoxon e utilizando a simulação da aula de testes
 
 
+dow.hour.mean.count %>%
+  filter(order_dow %in% c(3,4)) -> days.selected
+
+wilcox.test(meanCount ~ order_dow, 
+            data = days.selected, 
+            alternative = "two.sided", 
+            subset = order_dow %in% c(3, 4), 
+            conf.int = TRUE)
+
+pairwise.wilcox.test(days.selected$meanCount, days.selected$order_dow, p.adjust.method = "BH")
